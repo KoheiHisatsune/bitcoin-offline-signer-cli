@@ -19,22 +19,21 @@ function parseArgs(argv: string[]): CliArgs {
   }
 
   const paramsPath = argv[2];
-  let wifEnvName: string | undefined;
+  const wifEnvName = argv.slice(3).reduce<string | undefined>((currentEnvName, arg, index, restArgs) => {
+    if (restArgs[index - 1] === '--wif-env') {
+      return currentEnvName;
+    }
 
-  for (let i = 3; i < argv.length; i += 1) {
-    const arg = argv[i];
     if (arg === '--wif-env') {
-      const envName = argv[i + 1];
+      const envName = restArgs[index + 1];
       if (!envName) {
         throw new AppError('ERR_INVALID_JSON', '--wif-env requires an environment variable name');
       }
-      wifEnvName = envName;
-      i += 1;
-      continue;
+      return envName;
     }
 
     throw new AppError('ERR_INVALID_JSON', `Unknown argument: ${arg}`);
-  }
+  }, undefined);
 
   return { paramsPath, wifEnvName };
 }

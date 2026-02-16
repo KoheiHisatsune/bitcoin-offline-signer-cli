@@ -26,12 +26,13 @@ function resolveNetwork(network: TxParams['network']): bitcoin.Network {
 export function buildSignedTransactionHex(params: TxParams, options: BuildOptions): string {
   const network = resolveNetwork(params.network);
 
-  let keyPair;
-  try {
-    keyPair = ECPair.fromWIF(options.wif, network);
-  } catch (error) {
-    throw new AppError('ERR_INVALID_WIF', `Failed to parse WIF: ${(error as Error).message}`);
-  }
+  const keyPair = (() => {
+    try {
+      return ECPair.fromWIF(options.wif, network);
+    } catch (error) {
+      throw new AppError('ERR_INVALID_WIF', `Failed to parse WIF: ${(error as Error).message}`);
+    }
+  })();
 
   if (!keyPair.publicKey || keyPair.publicKey.length !== 33) {
     throw new AppError('ERR_INVALID_WIF', 'WIF did not produce a compressed public key');
@@ -69,7 +70,7 @@ export function buildSignedTransactionHex(params: TxParams, options: BuildOption
 
   const psbt = new bitcoin.Psbt({ network });
 
-  for (const [index, input] of params.inputs.entries()) {
+  params.inputs.forEach((input, index) => {
     const inputScriptHex = input.script_pubkey.toLowerCase();
 
     // P2WPKH script must be 0x00 PUSH_DATA_20 <20-byte-pubkey-hash> => 22 bytes => 44 hex chars.
@@ -95,14 +96,14 @@ export function buildSignedTransactionHex(params: TxParams, options: BuildOption
         value: input.value_sats
       }
     });
-  }
+  });
 
-  for (const output of params.outputs) {
+  params.outputs.forEach((output) => {
     psbt.addOutput({
       address: output.address,
       value: output.value_sats
     });
-  }
+  });
 
   if (change >= DUST_P2WPKH_SATS) {
     psbt.addOutput({
@@ -112,7 +113,7 @@ export function buildSignedTransactionHex(params: TxParams, options: BuildOption
   }
 
   try {
-    for (let i = 0; i < params.inputs.length; i += 1) {
+    params.inputs.forEach((_, i) => {
       psbt.signInput(i, keyPair);
       const isValid = psbt.validateSignaturesOfInput(i, (pubkey, msghash, signature) => {
         return ecc.verify(msghash, pubkey, signature);
@@ -120,7 +121,7 @@ export function buildSignedTransactionHex(params: TxParams, options: BuildOption
       if (!isValid) {
         throw new AppError('ERR_SIGNING_FAILED', `Invalid signature at input index ${i}`);
       }
-    }
+    });
     psbt.finalizeAllInputs();
   } catch (error) {
     throw new AppError('ERR_SIGNING_FAILED', `Signing/finalization failed: ${(error as Error).message}`);
