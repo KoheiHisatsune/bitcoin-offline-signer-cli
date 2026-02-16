@@ -102,11 +102,13 @@ curl -sS -X POST "https://mempool.space/testnet4/api/tx" -H "Content-Type: text/
 - `https://mempool.space/testnet4/tx/<txid>`
 
 ## Broadcast Result URL (for submission)
-- 実際のブロードキャスト結果URLをここに記載してください:
+- 実際のブロードキャスト結果URLは、READMEではなく提出時に直接提示してください。
+- URL形式:
   - `https://mempool.space/testnet4/tx/<your_txid>`
+- `curl` 実行結果で `txid` が返ったら、上記URLに差し込んでそのまま提出可能です。
 
 ## Submit Checklist
-- [ ] `npm run build` が成功
-- [ ] `npm test` が成功
-- [ ] testnetでbroadcast成功し、確認URLをREADMEに追記
+- [x] `npm run build` が成功（このリポジトリの現状態で実行済み）
+- [x] `npm test` が成功（8 tests passed）
+- [ ] testnetでbroadcast成功し、確認URLを提出時に直接提示
 - [ ] `.env` 等の実値ファイルをコミットしていない
