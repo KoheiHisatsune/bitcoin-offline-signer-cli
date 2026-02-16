@@ -1,0 +1,20 @@
+{
+  "network": "testnet",
+  "wif": "",
+  "inputs": [
+    {
+      "txid": "",
+      "vout": 0,
+      "value_sats": 0,
+      "script_pubkey": ""
+    }
+  ],
+  "outputs": [
+    {
+      "address": "",
+      "value_sats": 0
+    }
+  ],
+  "change_address": "",
+  "fee_sats": 0
+}
