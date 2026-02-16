@@ -7,7 +7,7 @@ JSON入力から、ブロードキャスト可能な署名済みraw transaction 
 - 署名時オフライン実行（外部API呼び出しなし）
 - network入力は `testnet` / `mainnet`
 - `P2WPKH` 入力のみ対応
-- `wif` はJSONまたは環境変数から取得（`--wif-env BTC_WIF`）
+- `wif` は `.env` の `BTC_WIF` / 任意環境変数 / JSON から取得（優先度順）
 - 安全装置
   - `fee_sats > total_input * 0.5` はエラー
   - `0 < change < 294` はエラー（P2WPKH dust閾値）
@@ -42,6 +42,11 @@ node dist/cli.js ./params.json --wif-env BTC_WIF
 cp .env.example .env
 # .env を編集して BTC_WIF を設定
 ```
+
+WIFの優先順位:
+1. `--wif-env <ENV_NAME>` で指定した環境変数
+2. `.env` / 実行環境の `BTC_WIF`
+3. `params.json` の `wif`
 
 ## JSON Format
 ```json

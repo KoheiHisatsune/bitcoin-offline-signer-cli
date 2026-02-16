@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import * as dotenv from 'dotenv';
 
 import { buildSignedTransactionHex } from './buildTx';
 import { AppError } from './errors';
@@ -49,22 +50,35 @@ function readJsonFile(filePath: string): unknown {
 }
 
 function resolveWif(parsed: { wif?: string }, wifEnvName?: string): string {
+  const envCandidates = wifEnvName ? [wifEnvName] : ['BTC_WIF'];
+  const envWif = envCandidates
+    .map((name) => process.env[name]?.trim())
+    .find((value) => Boolean(value));
+
+  if (envWif) {
+    return envWif;
+  }
+
+  if (parsed.wif) {
+    return parsed.wif;
+  }
+
   if (wifEnvName) {
-    const fromEnv = process.env[wifEnvName];
-    if (!fromEnv) {
-      throw new AppError('ERR_INVALID_WIF', `Environment variable ${wifEnvName} is empty or missing`);
-    }
-    return fromEnv;
+    throw new AppError('ERR_INVALID_WIF', `Environment variable ${wifEnvName} is empty or missing`);
   }
 
-  if (!parsed.wif) {
-    throw new AppError('ERR_INVALID_WIF', 'wif is required in JSON when --wif-env is not used');
-  }
+  throw new AppError(
+    'ERR_INVALID_WIF',
+    'WIF is required: set BTC_WIF in .env/.env.example, use --wif-env, or provide wif in JSON'
+  );
+}
 
-  return parsed.wif;
+function loadDotEnv(): void {
+  dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 }
 
 function main(): void {
+  loadDotEnv();
   const args = parseArgs(process.argv);
   const raw = readJsonFile(args.paramsPath);
   const parsed = paramsSchema.parse(raw);
