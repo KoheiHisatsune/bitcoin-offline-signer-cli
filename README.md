@@ -107,7 +107,7 @@ curl -sS -X POST "https://mempool.space/testnet4/api/tx" -H "Content-Type: text/
 - `https://mempool.space/testnet4/tx/<txid>`
 
 ## Broadcast Result URL (for submission)
-- 実際のブロードキャスト結果URLは、README1には掲載しません。
+- 実際のブロードキャスト結果URLは、READMEには掲載しません。
 - URL形式:
   - `https://mempool.space/testnet4/tx/<your_txid>`
 - `curl` 実行結果で `txid` が返ったら、上記URLに差し込んでそのまま提出可能です。
